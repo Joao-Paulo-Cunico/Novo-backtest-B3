@@ -7,7 +7,9 @@ def main():
     dados = dados.droplevel("Ticker", axis=1)
     
     trades = 0
+    lucro = 0
     lucro_total = 0
+    trades_vencedores = 0
     testevariacao = 0.01
 
     for i in range(1, len(dados)):
@@ -21,7 +23,10 @@ def main():
         
         
         if variacao <= testevariacao:
+            lucro_total += lucro
             trades += 1
+            if lucro > 0:
+                trades_vencedores += 1
 
             print("Compra!")
             
@@ -35,8 +40,16 @@ def main():
             print(f"{trades}")
 
             print("-------\n")
+    
+    if trades > 0:
+        taxa_acerto = (trades_vencedores / trades) * 100
+    else:
+        taxa_acerto = 0
 
-
+    print("========== RELATÓRIO ==========")
+    print(f"Total de trades: {trades}")
+    print(f"Lucro total: {lucro_total:.2f}")
+    print(f"Taxa de acerto: {taxa_acerto:.2f}%")
 
 
 if __name__ == "__main__":
