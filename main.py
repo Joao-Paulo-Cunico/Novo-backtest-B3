@@ -1,13 +1,20 @@
 import yfinance as yf
 
+def baixar_dados():
+    dados = yf.download("PETR4.SA")
+    dados = dados.droplevel("Ticker", axis=1)
+
+    return dados
+
 def main():
 
-    dados = yf.download("PETR4.SA")
-    
-    dados = dados.droplevel("Ticker", axis=1)
+    dados = baixar_dados()
+
+    print(dados.columns)
+    print(type(dados["Close"]))
+    print(dados["Close"].head())
     
     trades = 0
-    lucro = 0
     lucro_total = 0
     trades_vencedores = 0
     testevariacao = 0.01
@@ -22,7 +29,7 @@ def main():
         lucro = preco_hoje - valor_compra
         
         
-        if variacao <= testevariacao:
+        if variacao <= -testevariacao:
             lucro_total += lucro
             trades += 1
             if lucro > 0:
@@ -54,3 +61,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
