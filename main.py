@@ -9,11 +9,13 @@ def baixar_dados(ticker):
 
 
 def executar_backtest(dados):
+    trades_realizados = []
+    
     print("Executando backtest...")
     trades = 0
     lucro_total = 0
     trades_vencedores = 0
-    queda_para_compra = 0.01
+    queda_para_compra = 0.02
 
     for i in range(1, len(dados)):
         preco_hoje = dados["Close"].iloc[i]
@@ -29,22 +31,23 @@ def executar_backtest(dados):
 
             if lucro > 0:
                 trades_vencedores += 1
+                
+            trade = {
+                "data": dados.index[i],
+                "preco_compra": valor_compra,
+                "preco_venda": preco_hoje,
+                "lucro": lucro
+            }
 
-            print("Compra!")
-            print(f"Hoje: {preco_hoje:.2f}")
-            print(f"Ontem: {preco_ontem:.2f}")
-            print(f"Variacao: {variacao * 100:.2f}%\n")
-            print(f"Preco de compra: {valor_compra:.3f}")
-            print(f"O lucro foi: {lucro:.2f}")
-            print(f"{trades}")
-            print("-------\n")
+            trades_realizados.append(trade)
 
     if trades > 0:
         taxa_acerto = (trades_vencedores / trades) * 100
     else:
         taxa_acerto = 0
 
-    return trades, lucro_total, taxa_acerto
+
+    return trades_realizados, trades, lucro_total, taxa_acerto
 
 
 def relatorio(trades, lucro_total, taxa_acerto):
@@ -60,9 +63,12 @@ def main():
     print(dados.columns)
     print(type(dados["Close"]))
     print(dados["Close"].head())
+    
 
-    trades, lucro_total, taxa_acerto = executar_backtest(dados)
+    trades_realizados, trades, lucro_total, taxa_acerto = executar_backtest(dados)
     relatorio(trades, lucro_total, taxa_acerto)
+    
+    print(trades_realizados[0]["lucro"])
 
 
 if __name__ == "__main__":
