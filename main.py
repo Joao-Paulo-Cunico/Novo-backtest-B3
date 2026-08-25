@@ -10,12 +10,12 @@ def baixar_dados(ticker):
 
 def executar_backtest(dados):
     trades_realizados = []
-    
+
     print("Executando backtest...")
-    trades = 0
     lucro_total = 0
     trades_vencedores = 0
-    queda_para_compra = 0.02
+    #estatistica para operacao
+    queda_para_compra = 0.01
 
     for i in range(1, len(dados)):
         preco_hoje = dados["Close"].iloc[i]
@@ -27,48 +27,84 @@ def executar_backtest(dados):
 
         if variacao <= -queda_para_compra:
             lucro_total += lucro
-            trades += 1
 
             if lucro > 0:
                 trades_vencedores += 1
-                
+
             trade = {
                 "data": dados.index[i],
                 "preco_compra": valor_compra,
                 "preco_venda": preco_hoje,
-                "lucro": lucro
+                "lucro": lucro,
             }
 
             trades_realizados.append(trade)
 
-    if trades > 0:
-        taxa_acerto = (trades_vencedores / trades) * 100
+    return trades_realizados, lucro_total
+
+
+def calcular_estatisticas(trades_realizados):
+    total_trades = len(trades_realizados)
+    trades_vencedores = 0
+    lucro_total = 0
+
+
+    for trade in trades_realizados:
+        lucro_total += trade["lucro"]
+
+        if trade["lucro"] > 0:
+            trades_vencedores += 1
+
+    trades_perdedores = total_trades - trades_vencedores
+        
+    if total_trades > 0:
+        taxa_acerto = (trades_vencedores / total_trades) * 100
+        lucro_medio = lucro_total / total_trades
     else:
         taxa_acerto = 0
+        lucro_medio = 0
+               
+    return (
+    total_trades,
+    trades_vencedores,
+    trades_perdedores,
+    lucro_total,
+    lucro_medio,
+    taxa_acerto)
 
 
-    return trades_realizados, trades, lucro_total, taxa_acerto
-
-
-def relatorio(trades, lucro_total, taxa_acerto):
+def relatorio(
+    total_trades,
+    trades_vencedores,
+    trades_perdedores,
+    lucro_total,
+    lucro_medio,
+    taxa_acerto
+):
     print("========== RELATÓRIO ==========")
-    print(f"Total de trades: {trades}")
+    print(f"Total de trades: {total_trades}")
+    print(f"Trades vencedores: {trades_vencedores}")
+    print(f"Trades perdedores: {trades_perdedores}")
     print(f"Lucro total: {lucro_total:.2f}")
+    print(f"Lucro médio: {lucro_medio:.2f}")
     print(f"Taxa de acerto: {taxa_acerto:.2f}%")
 
 
 def main():
-    dados = baixar_dados("VALE3.SA")
+    dados = baixar_dados("PETR4.SA")
 
-    print(dados.columns)
-    print(type(dados["Close"]))
-    print(dados["Close"].head())
+    trades_realizados, lucro_total = executar_backtest(dados)
     
-
-    trades_realizados, trades, lucro_total, taxa_acerto = executar_backtest(dados)
-    relatorio(trades, lucro_total, taxa_acerto)
+    total_trades, trades_vencedores, trades_perdedores, lucro_total, lucro_medio, taxa_acerto = calcular_estatisticas(trades_realizados)
     
-    print(trades_realizados[0]["lucro"])
+    relatorio(
+        total_trades,
+        trades_vencedores,
+        trades_perdedores,
+        lucro_total,
+        lucro_medio,
+        taxa_acerto
+    )
 
 
 if __name__ == "__main__":
