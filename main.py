@@ -20,12 +20,12 @@ def executar_backtest(dados):
     for i in range(1, len(dados)):
         preco_hoje = dados["Close"].iloc[i]
         preco_ontem = dados["Close"].iloc[i - 1]
+        preco_minimo = dados["Low"].iloc[i]
 
-        variacao = (preco_hoje - preco_ontem) / preco_ontem
         valor_compra = preco_ontem * (1 - queda_para_compra)
         lucro = preco_hoje - valor_compra
 
-        if variacao <= -queda_para_compra:
+        if preco_minimo <= valor_compra:
             lucro_total += lucro
 
             if lucro > 0:
