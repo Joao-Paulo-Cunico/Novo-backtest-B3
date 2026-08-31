@@ -24,6 +24,7 @@ def executar_backtest(dados):
 
         valor_compra = preco_ontem * (1 - queda_para_compra)
         lucro = preco_hoje - valor_compra
+        retorno = lucro / valor_compra
 
         if preco_minimo <= valor_compra:
             lucro_total += lucro
@@ -36,6 +37,7 @@ def executar_backtest(dados):
                 "preco_compra": valor_compra,
                 "preco_venda": preco_hoje,
                 "lucro": lucro,
+                "retorno": retorno
             }
 
             trades_realizados.append(trade)
@@ -47,11 +49,13 @@ def calcular_estatisticas(trades_realizados):
     total_trades = len(trades_realizados)
     trades_vencedores = 0
     lucro_total = 0
+    valor_compra_total = 0
     maior_lucro = None
     maior_prejuizo = None
 
     for trade in trades_realizados:
         lucro_total += trade["lucro"]
+        valor_compra_total += trade["preco_compra"]
         lucro = trade["lucro"]
 
         if maior_lucro is None or lucro > maior_lucro:
@@ -68,11 +72,13 @@ def calcular_estatisticas(trades_realizados):
     if total_trades > 0:
         taxa_acerto = (trades_vencedores / total_trades) * 100
         lucro_medio = lucro_total / total_trades
+        retorno_total = lucro_total / valor_compra_total
     else:
         taxa_acerto = 0
         lucro_medio = 0
         maior_lucro = 0
         maior_prejuizo = 0
+        retorno_total = 0
 
     return (
         total_trades,
@@ -83,6 +89,7 @@ def calcular_estatisticas(trades_realizados):
         taxa_acerto,
         maior_lucro,
         maior_prejuizo,
+        retorno_total
     )
 
 
@@ -94,7 +101,8 @@ def relatorio(
     lucro_medio,
     taxa_acerto,
     maior_lucro,
-    maior_prejuizo
+    maior_prejuizo,
+    retorno_total
 ):
     print("========== RELATÓRIO ==========")
     print(f"Total de trades: {total_trades}")
@@ -105,10 +113,11 @@ def relatorio(
     print(f"Taxa de acerto: {taxa_acerto:.2f}%")
     print(f"Maior lucro: {maior_lucro:.2f}")
     print(f"Maior prejuízo: {maior_prejuizo:.2f}")
+    print(f"Retorno: {retorno_total * 100:.2f}%")
 
 
 def main():
-    dados = baixar_dados("PETR4.SA")
+    dados = baixar_dados("VALE3.SA")
 
     trades_realizados, lucro_total = executar_backtest(dados)
 
@@ -120,7 +129,8 @@ def main():
         lucro_medio,
         taxa_acerto,
         maior_lucro,
-        maior_prejuizo
+        maior_prejuizo,
+        retorno_total
     ) = calcular_estatisticas(trades_realizados)
 
     relatorio(
@@ -131,7 +141,8 @@ def main():
         lucro_medio,
         taxa_acerto,
         maior_lucro,
-        maior_prejuizo
+        maior_prejuizo,
+        retorno_total
     )
 
 
