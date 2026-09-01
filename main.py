@@ -52,11 +52,23 @@ def calcular_estatisticas(trades_realizados):
     valor_compra_total = 0
     maior_lucro = None
     maior_prejuizo = None
+    soma_retornos_vencedores = 0
+    soma_retornos_perdedores = 0
+    quantidade_vencedores = 0
+    quantidade_perdedores = 0
 
     for trade in trades_realizados:
         lucro_total += trade["lucro"]
         valor_compra_total += trade["preco_compra"]
         lucro = trade["lucro"]
+        retorno = trade["retorno"]
+        
+        if retorno > 0:
+            soma_retornos_vencedores += retorno
+            quantidade_vencedores += 1
+        elif retorno < 0:
+            soma_retornos_perdedores += retorno
+            quantidade_perdedores += 1
 
         if maior_lucro is None or lucro > maior_lucro:
             maior_lucro = lucro
@@ -66,6 +78,19 @@ def calcular_estatisticas(trades_realizados):
 
         if trade["lucro"] > 0:
             trades_vencedores += 1
+
+    if quantidade_vencedores > 0:
+        media_retorno_vencedores = (
+            soma_retornos_vencedores / quantidade_vencedores)
+    else:
+        media_retorno_vencedores = 0
+
+    if quantidade_perdedores > 0:
+        media_retorno_perdedores = (
+            soma_retornos_perdedores / quantidade_perdedores
+        )
+    else:
+        media_retorno_perdedores = 0
 
     trades_perdedores = total_trades - trades_vencedores
 
@@ -89,7 +114,9 @@ def calcular_estatisticas(trades_realizados):
         taxa_acerto,
         maior_lucro,
         maior_prejuizo,
-        retorno_total
+        retorno_total,
+        media_retorno_vencedores,
+        media_retorno_perdedores
     )
 
 
@@ -102,7 +129,9 @@ def relatorio(
     taxa_acerto,
     maior_lucro,
     maior_prejuizo,
-    retorno_total
+    retorno_total,
+    media_retorno_vencedores,
+    media_retorno_perdedores
 ):
     print("========== RELATÓRIO ==========")
     print(f"Total de trades: {total_trades}")
@@ -114,6 +143,9 @@ def relatorio(
     print(f"Maior lucro: {maior_lucro:.2f}")
     print(f"Maior prejuízo: {maior_prejuizo:.2f}")
     print(f"Retorno: {retorno_total * 100:.2f}%")
+    print(f"Média dos vencedores: {media_retorno_vencedores * 100:.2f}%")
+    print(f"Média dos perdedores: {media_retorno_perdedores * 100:.2f}%")
+    
 
 
 def main():
@@ -130,7 +162,9 @@ def main():
         taxa_acerto,
         maior_lucro,
         maior_prejuizo,
-        retorno_total
+        retorno_total,
+        media_retorno_vencedores,
+        media_retorno_perdedores
     ) = calcular_estatisticas(trades_realizados)
 
     relatorio(
@@ -142,7 +176,9 @@ def main():
         taxa_acerto,
         maior_lucro,
         maior_prejuizo,
-        retorno_total
+        retorno_total,
+        media_retorno_vencedores,
+        media_retorno_perdedores
     )
 
 
