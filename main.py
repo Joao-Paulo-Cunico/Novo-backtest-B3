@@ -2,8 +2,8 @@ import yfinance as yf
 
 
 def baixar_dados(ticker, periodo="1y"):
-    """Baixa OHLC diário sem ajustes para simular preços negociáveis."""
-    dados = yf.download(ticker, period=periodo, auto_adjust=False, progress=False)
+    """Baixa OHLC diário com ajustes para refletir proventos e desdobramentos."""
+    dados = yf.download(ticker, period=periodo, auto_adjust=True, progress=False)
 
     if dados.empty:
         raise RuntimeError(
